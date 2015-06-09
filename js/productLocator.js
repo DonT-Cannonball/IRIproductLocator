@@ -27,6 +27,12 @@ var myAppModule =  angular.module('myApp', ['ngMap','cb.x2js'])
         $scope.message = err;
       });
 
+      ZipCodeLookupSvc.lookupLatLong().then(function(zipCode) {
+        $scope.zipCode = zipCode;
+      }, function(err) {
+        $scope.message = err;
+      });
+
       function setProductGroups(data){
 
         $scope.productGroups = data.groups.group;
@@ -223,13 +229,18 @@ myAppModule.factory('ZipCodeLookupSvc', [
   '$q', '$http', 'GeolocationSvc',
   function($q, $http, GeolocationSvc) {
     var MAPS_ENDPOINT = 'http://maps.google.com/maps/api/geocode/json?latlng={POSITION}&sensor=false';
+    //var MAPS_ENDPOINT_ADDRESS = 'http://maps.google.com/maps/api/geocode/json?address={ZIP}&sensor=false';
 
     return {
       urlForLatLng: function(lat, lng) {
         return MAPS_ENDPOINT.replace('{POSITION}', lat + ',' + lng);
       },
-
-      lookupByLatLng: function(lat, lng) {
+      //
+      //urlForZip: function(lat, lng) {
+      //      return MAPS_ENDPOINT.replace('{POSITION}', lat + ',' + lng);
+      //    },
+      //
+          lookupByLatLng: function(lat, lng) {
         var deferred = $q.defer();
         var url = this.urlForLatLng(lat, lng);
 
@@ -246,8 +257,39 @@ myAppModule.factory('ZipCodeLookupSvc', [
 
         return deferred.promise;
       },
+      //
+      //lookupByZip: function(lat, lng) {
+      //  var deferred = $q.defer();
+      //  var url = this.urlForZip(lat, lng);
+      //
+      //  $http.get(url).success(function(response) {
+      //    // hacky
+      //    var zipCode;
+      //    angular.forEach(response.results, function(result) {
+      //      if(result.types[0] === 'postal_code') {
+      //        zipCode = result.address_components[0].short_name;
+      //      }
+      //    });
+      //    deferred.resolve(zipCode);
+      //  }).error(deferred.reject);
+      //
+      //  return deferred.promise;
+      //},
+
+
 
       lookup: function() {
+        var deferred = $q.defer();
+        var self = this;
+
+        GeolocationSvc().then(function(position) {
+          deferred.resolve(self.lookupByLatLng(position.lat, position.lng));
+        }, deferred.reject);
+
+        return deferred.promise;
+      },
+
+      lookupLatLong: function() {
         var deferred = $q.defer();
         var self = this;
 
