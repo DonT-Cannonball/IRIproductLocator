@@ -1,6 +1,6 @@
 //var myAppModule = angular.module('myApp', ['ngMap']);
 
-var myAppModule =  angular.module('myApp', ['ngMap','cb.x2js'])
+var myAppModule = angular.module('myApp', ['ngMap', 'cb.x2js'])
   .controller('MapsController', [
     '$scope', 'dao', 'ZipCodeLookupSvc',
 
@@ -10,10 +10,10 @@ var myAppModule =  angular.module('myApp', ['ngMap','cb.x2js'])
       $scope.products = [];
       $scope.selectedProduct = "";
       $scope.storeLocations = [];
-      $scope.center = {
-        latitude: 30,
-        longitude: -90
-      };
+      $scope.latlng = {};
+      $scope.latlngJson = JSON.stringify($scope.latlng, null, 2);
+      $scope.center =  "38.6527064, -90.3451408";
+
       $scope.zoom = 8;
       $scope.control = {};
       $scope.greeting = 'Hola!' + dao.getStuff();
@@ -21,70 +21,92 @@ var myAppModule =  angular.module('myApp', ['ngMap','cb.x2js'])
       $scope.zipCode = null;
       $scope.message = 'Finding zip code...';
 
-      ZipCodeLookupSvc.lookup().then(function(zipCode) {
+      ZipCodeLookupSvc.lookup().then(function (zipCode) {
         $scope.zipCode = zipCode;
-      }, function(err) {
+      }, function (err) {
         $scope.message = err;
       });
 
-      ZipCodeLookupSvc.lookupLatLong().then(function(zipCode) {
+      ZipCodeLookupSvc.lookupLatLong().then(function (zipCode) {
         $scope.zipCode = zipCode;
-      }, function(err) {
+      }, function (err) {
         $scope.message = err;
       });
 
-      function setProductGroups(data){
+      $scope.getLatFromZip = function(){
+      ZipCodeLookupSvc.lookupByZip($scope.zipCode).then(function (latlng) {
+
+        var latLngStr = "";
+        latLngStr += ""+latlng.lat +","+latlng.lng
+        $scope.center =latLngStr;
+
+        $scope.latlng = {
+          latitude: latlng.lat,
+          longitude: latlng.lng
+        };
+
+        $scope.latlngJson = JSON.stringify($scope.latlng, null, 2);
+
+        console.log(JSON.stringify($scope.latlng, null, 2));
+      }, function (err) {
+        $scope.message = err;
+      });
+
+      }
+
+      function setProductGroups(data) {
 
         $scope.productGroups = data.groups.group;
 
       }
 
-      $scope.setProductGroup = function(group_name, group_id){
+      $scope.setProductGroup = function (group_name, group_id) {
 
-        $scope.selectedGroup = {id:group_id, name:group_name};
+        $scope.selectedGroup = {id: group_id, name: group_name};
 
         dao.getProductsForGroup(setProductList, $scope.selectedGroup.id)
 
       }
 
-      function setProductList(data){
+      function setProductList(data) {
 
-        console.log("is product list an array or no? : "+ window._.isArray(data.products.product));
-        if(window._.isArray(data.products.product)){
+        console.log("is product list an array or no? : " + window._.isArray(data.products.product));
+        if (window._.isArray(data.products.product)) {
           $scope.products = data.products.product;
-        }else{
+        } else {
           $scope.products.push(data.products.product);
         }
         console.log(JSON.stringify($scope.products, null, 2));
 
       }
 
-      $scope.setSelectedProduct = function(product_name, product_id){
+      $scope.setSelectedProduct = function (product_name, product_id) {
 
 
-        $scope.selectedProduct = {id:product_id, name:product_name};
+        $scope.selectedProduct = {id: product_id, name: product_name};
 
         dao.getProductsByStores(setStoresList, $scope.selectedProduct.id, $scope.zipCode)
 
       }
 
 
-      function setStoresList(data){
+      function setStoresList(data) {
 
-        console.log("is stores list an array or no? : "+ window._.isArray(data.RESULTS.STORES.STORE));
+        console.log("is stores list an array or no? : " + window._.isArray(data.RESULTS.STORES.STORE));
 
         $scope.storeLocations = [];
-        if(_.isArray(data.RESULTS.STORES.STORE)){
+        if (_.isArray(data.RESULTS.STORES.STORE)) {
           $scope.storeLocations = data.RESULTS.STORES.STORE;
-        }else{
+        } else {
           $scope.storeLocations.push(data.RESULTS.STORES.STORE);
         }
         console.log(JSON.stringify($scope.storeLocations, null, 2));
 
       }
 
-      $scope.getLocation = function(){
+      $scope.getLocation = function () {
         var x = document.getElementById("location");
+
         function getLocation() {
           if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(showPosition);
@@ -92,14 +114,16 @@ var myAppModule =  angular.module('myApp', ['ngMap','cb.x2js'])
             x.innerHTML = "Geolocation is not supported by this browser.";
           }
         }
+
         function showPosition(position) {
           x.innerHTML = "Latitude: " + position.coords.latitude +
           "<br>Longitude: " + position.coords.longitude;
 
-          $scope.center = {
-            latitude: position.coords.longitude,
-            longitude: position.coords.latitude
-          };
+          $scope.center =  ""+position.coords.latitude +","+ position.coords.longitude
+          //{
+          //  latitude: position.coords.latitude,
+          //  longitude: position.coords.longitude
+          //};
           dao.getProductGroups(setProductGroups)
         }
 
@@ -110,9 +134,9 @@ var myAppModule =  angular.module('myApp', ['ngMap','cb.x2js'])
 
     }]);
 
-myAppModule.factory('dao', ['$http', 'x2js', function($http, x2js) {
+myAppModule.factory('dao', ['$http', 'x2js', function ($http, x2js) {
   var DAO = {
-    getProductsByStores: function(callback, productId, zipCode){
+    getProductsByStores: function (callback, productId, zipCode) {
 
       ///http://productlocator.infores.com/productlocator/products/products.pli
 
@@ -121,50 +145,52 @@ myAppModule.factory('dao', ['$http', 'x2js', function($http, x2js) {
       // gets stores for a product: http://productlocator.infores.com/productlocator/servlet/ProductLocatorEngine?clientid=156&productfamilyid=FARM&producttype=upc&productid=4900002890&zip=63126
       var query = "";
       query += "clientid=156&productfamilyid=FARM&producttype=upc"
-      query += "&productid="+productId;
-      query += "&zip="+zipCode
+      query += "&productid=" + productId;
+      query += "&zip=" + zipCode
 
-      var proxyUrl = 'proxy.php?url=' + encodeURIComponent('http://productlocator.infores.com/productlocator/servlet/ProductLocatorEngine?'+query);
-console.log("proxyUrl" + proxyUrl)
+      var proxyUrl = 'proxy.php?url=' + encodeURIComponent('http://productlocator.infores.com/productlocator/servlet/ProductLocatorEngine?' + query);
+      console.log("proxyUrl" + proxyUrl)
       $http.get(
         proxyUrl,
-        {transformResponse:function(data) {
-          // convert the data to JSON and provide
-          // it to the success function below
-          var x2js = new X2JS();
-          var json = x2js.xml_str2json( data );
-          return json;
-        }
+        {
+          transformResponse: function (data) {
+            // convert the data to JSON and provide
+            // it to the success function below
+            var x2js = new X2JS();
+            var json = x2js.xml_str2json(data);
+            return json;
+          }
         }
       ).
-        success(function(data, status) {
+        success(function (data, status) {
           // send the converted data back
           // to the callback function
           callback(data);
         })
     },
-    getProductsForGroup: function(callback, selectedGroup){
+    getProductsForGroup: function (callback, selectedGroup) {
 
       //http://productlocator.infores.com/productlocator/products/products.pli?client_id=156&brand_id=FARM&group_id=ANFP
 
-      var proxyUrl = 'proxy.php?url=' + encodeURIComponent('http://productlocator.infores.com/productlocator/products/products.pli?client_id=156&brand_id=FARM&group_id='+selectedGroup);
+      var proxyUrl = 'proxy.php?url=' + encodeURIComponent('http://productlocator.infores.com/productlocator/products/products.pli?client_id=156&brand_id=FARM&group_id=' + selectedGroup);
       $http.get(proxyUrl,
-        {transformResponse:function(data) {
-          // convert the data to JSON and provide
-          // it to the success function below
-          var x2js = new X2JS();
-          var json = x2js.xml_str2json( data );
-          return json;
-        }
+        {
+          transformResponse: function (data) {
+            // convert the data to JSON and provide
+            // it to the success function below
+            var x2js = new X2JS();
+            var json = x2js.xml_str2json(data);
+            return json;
+          }
         }
       ).
-        success(function(data, status) {
+        success(function (data, status) {
           // send the converted data back
           // to the callback function
           callback(data);
         })
     },
-    getProductGroups: function(callback){
+    getProductGroups: function (callback) {
       ///http://productlocator.infores.com/productlocator/products/products.pli
       //http://productlocator.infores.com/productlocator/products/products.pli?client_id=156&brand_id=FARM&prod_lvl=group
       //http://productlocator.infores.com/productlocator/servlet/ProductLocatorEngine?client_id=156&brand_id=FARM&group_id=ANFP&zipcode=63126
@@ -172,30 +198,31 @@ console.log("proxyUrl" + proxyUrl)
       var proxyUrl = 'proxy.php?url=' + encodeURIComponent('http://productlocator.infores.com/productlocator/products/products.pli?client_id=156&brand_id=FARM&prod_lvl=group');
       $http.get(
         proxyUrl,
-        {transformResponse:function(data) {
-          // convert the data to JSON and provide
-          // it to the success function below
-          var x2js = new X2JS();
-          var json = x2js.xml_str2json( data );
-          return json;
-        }
+        {
+          transformResponse: function (data) {
+            // convert the data to JSON and provide
+            // it to the success function below
+            var x2js = new X2JS();
+            var json = x2js.xml_str2json(data);
+            return json;
+          }
         }
       ).
-        success(function(data, status) {
+        success(function (data, status) {
           // send the converted data back
           // to the callback function
           callback(data);
         })
     },
-    convertToXml: function(json){
+    convertToXml: function (json) {
       // convert the data to JSON and provide
       // it to the success function below
-      var x2js = new X2JS({escapeMode : false,stripWhitespaces : false});
-      var xml = x2js.json2xml_str( json );
+      var x2js = new X2JS({escapeMode: false, stripWhitespaces: false});
+      var xml = x2js.json2xml_str(json);
       return xml;
     },
 
-    getStuff: function(){
+    getStuff: function () {
       return "stuff"
     }
 
@@ -206,14 +233,14 @@ console.log("proxyUrl" + proxyUrl)
 
 myAppModule.factory('GeolocationSvc', [
   '$q', '$window',
-  function($q, $window) {
-    return function() {
+  function ($q, $window) {
+    return function () {
       var deferred = $q.defer();
 
-      if(!$window.navigator) {
+      if (!$window.navigator) {
         deferred.reject(new Error('Geolocation is not supported'));
       } else {
-        $window.navigator.geolocation.getCurrentPosition(function(position) {
+        $window.navigator.geolocation.getCurrentPosition(function (position) {
           deferred.resolve({
             lat: position.coords.latitude,
             lng: position.coords.longitude
@@ -227,28 +254,28 @@ myAppModule.factory('GeolocationSvc', [
 
 myAppModule.factory('ZipCodeLookupSvc', [
   '$q', '$http', 'GeolocationSvc',
-  function($q, $http, GeolocationSvc) {
+  function ($q, $http, GeolocationSvc) {
     var MAPS_ENDPOINT = 'http://maps.google.com/maps/api/geocode/json?latlng={POSITION}&sensor=false';
-    //var MAPS_ENDPOINT_ADDRESS = 'http://maps.google.com/maps/api/geocode/json?address={ZIP}&sensor=false';
+    var MAPS_ENDPOINT_ADDRESS = 'http://maps.google.com/maps/api/geocode/json?address={ZIP}&sensor=false';
 
     return {
-      urlForLatLng: function(lat, lng) {
+      urlForLatLng: function (lat, lng) {
         return MAPS_ENDPOINT.replace('{POSITION}', lat + ',' + lng);
       },
-      //
-      //urlForZip: function(lat, lng) {
-      //      return MAPS_ENDPOINT.replace('{POSITION}', lat + ',' + lng);
-      //    },
-      //
-          lookupByLatLng: function(lat, lng) {
+
+      urlForZip: function (zipCode) {
+        return MAPS_ENDPOINT_ADDRESS.replace('{ZIP}', zipCode);
+      },
+
+      lookupByLatLng: function (lat, lng) {
         var deferred = $q.defer();
         var url = this.urlForLatLng(lat, lng);
 
-        $http.get(url).success(function(response) {
+        $http.get(url).success(function (response) {
           // hacky
           var zipCode;
-          angular.forEach(response.results, function(result) {
-            if(result.types[0] === 'postal_code') {
+          angular.forEach(response.results, function (result) {
+            if (result.types[0] === 'postal_code') {
               zipCode = result.address_components[0].short_name;
             }
           });
@@ -257,43 +284,43 @@ myAppModule.factory('ZipCodeLookupSvc', [
 
         return deferred.promise;
       },
-      //
-      //lookupByZip: function(lat, lng) {
-      //  var deferred = $q.defer();
-      //  var url = this.urlForZip(lat, lng);
-      //
-      //  $http.get(url).success(function(response) {
-      //    // hacky
-      //    var zipCode;
-      //    angular.forEach(response.results, function(result) {
-      //      if(result.types[0] === 'postal_code') {
-      //        zipCode = result.address_components[0].short_name;
-      //      }
-      //    });
-      //    deferred.resolve(zipCode);
-      //  }).error(deferred.reject);
-      //
-      //  return deferred.promise;
-      //},
+
+      lookupByZip: function (zip) {
+        var deferred = $q.defer();
+        var url = this.urlForZip(zip);
+
+        $http.get(url).success(function (response) {
+          //hacky
+          var latlng;
+
+          angular.forEach(response.results, function (result) {
+            if (result.types[0] === 'postal_code') {
+              latlng = result.geometry.location;
+            }
+          });
+          deferred.resolve(latlng);
+        }).error(deferred.reject);
+
+        return deferred.promise;
+      },
 
 
-
-      lookup: function() {
+      lookup: function () {
         var deferred = $q.defer();
         var self = this;
 
-        GeolocationSvc().then(function(position) {
+        GeolocationSvc().then(function (position) {
           deferred.resolve(self.lookupByLatLng(position.lat, position.lng));
         }, deferred.reject);
 
         return deferred.promise;
       },
 
-      lookupLatLong: function() {
+      lookupLatLong: function () {
         var deferred = $q.defer();
         var self = this;
 
-        GeolocationSvc().then(function(position) {
+        GeolocationSvc().then(function (position) {
           deferred.resolve(self.lookupByLatLng(position.lat, position.lng));
         }, deferred.reject);
 

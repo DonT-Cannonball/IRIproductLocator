@@ -45,9 +45,12 @@
             <div ng-app="myApp" ng-controller="MapsController">
                 <div class="controls-panel">
                     <div ng-show="zipCode">
-                        <p>{{ zipCode }}</p>
+                        <p>Browser golocation:  {{ zipCode }}</p>
                     </div>
-                    <input id="zipcode-input" class="zip-code" type="text" ng-model="zipCode"/>
+                    <div ng-show="latlngJson">
+                        <p>user input golocation:  {{ latlngJson }}</p>
+                    </div>
+                    <input id="zipcode-input" class="zip-code" type="text" ng-model="zipCode"/> <button class="btn btn-default" ng-click="getLatFromZip()"> set zip code</button>
                     <div ng-hide="zipCode">
                         <p>{{ message }}</p>
                     </div>
@@ -72,9 +75,9 @@
                 </div>
 
                 <div class="selected-item">{{selectedGroup.name}}</div>
-                <map center="current-location" zoom="10" style="height: 600px;">
-                    <info-window position="current-location" visible="true">
-                        <span>Loation found using HTML5.</span>
+                <map center="{{center}}" zoom="10" style="height: 600px;">
+                    <info-window position="{{center}}" visible="true">
+                        <span>Loation found using Geolocation</span>
                     </info-window>
 
                     <marker ng-repeat="store in storeLocations" position="{{[store.LATITUDE.__cdata, store.LONGITUDE.__cdata]}}" title="Hello World!"></marker>
