@@ -1,118 +1,20 @@
 body {
   padding-top: 50px;
 }
-.starter-template {
-  padding: 40px 15px;
-  text-align: center;
+
+.tile-image {
+    max-width: 313px;
 }
 
-/* CSS used here will be applied after bootstrap.css */
-.panel-heading-sm{
-    height: 28px;
-    padding: 4px 10px;
+.tile-header-bg {
+    width: 313px;
+    height: 71px;
+    background: url(http://farmlandfoods.dev/sites/all/themes/farmlandfoods/images/tile-header-blue.jpg) no-repeat;
+    color: #ffffff;
+    padding: 8px 8px;
+    font-size: 26px;
+    line-height: 29px;
 }
-
-.panel-body-sm{
-    padding: 5px 10px;
-}
-
-.controls-panel{
-
-    min-height: 120px;
-}
-
-table.table-heading-sm thead tr th, table.table-heading-sm  tbody tr td{
-    font-size: 12px;
-    height: 28px;
-    padding: 4px 10px;
-}
-
-.table-body-sm{
-    padding: 5px 10px;
-}
-
-.capitalize {
-    text-transform: capitalize;
-}
-.open .dropdown-menu{
-    padding: 5px 15px;
-    position: relative;
-
-}
-.list-inline > li {
-    display: inline-block;
-    padding-right: 5px;
-    padding-left: 5px;
-    vertical-align: top;
-    margin-top: 10px;
-}
-
-#filter-list{
-    /*margin-top: 46px;*/
-}
-.filter-list{
-    cursor: pointer;
-    color: #337ab7;
-
-}
-.filter-controls{
-    height: 37px;
-}
-.filter-expand-link{
-    text-align: left;
-}
-
-.showcheckmark {
-    display: inline-block !important;
-}
-.list-group-item{
-    min-width: 200px;
-    padding: 5px;
-}
-.bread-crumb-btn, #dLabel{
-    margin-bottom: 4px;
-}
-
-.bread-crumb-btn{
-    margin-right: 4px;
-}
-
-.bread-crumb-btn .badge{
-    min-width: 10px;
-    padding: 2px 3px;
-    font-size: 9px;
-}
-.search-button.glyphicon {
-    position: initial;
-}
-/* position: relative; */
-.collapse-group > div.outer{
-    /*padding-top: 31px;*/
-}
-
-.dropdown-panel-itemA,  .dropdown-panel-itemB,  .dropdown-panel-itemC,  .dropdown-panel-itemD,  .dropdown-panel-itemE{
-    padding: 4px;
-}
-
-.w150{
-    width: 150px;
-}
-
-.w175{
-    width: 175px;
-}
-
-.w200{
-    width: 200px;
-}
-
-.w225{
-    width: 225px;
-}
-.w250{
-    width: 250px;
-}
-
 
 @media (max-width: 767px){
 
@@ -186,6 +88,9 @@ table.table-heading-sm thead tr th, table.table-heading-sm  tbody tr td{
     }
     .closed-mobile{
         display: block !important;
+    }
+    .container {
+        width: 970px;
     }
 }
 

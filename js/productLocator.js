@@ -4,7 +4,7 @@ var myAppModule = angular.module('myApp', ['ngMap', 'cb.x2js'])
   .controller('MapsController', [
     '$scope', 'dao', 'ZipCodeLookupSvc',
 
-    function ($scope, dao, ZipCodeLookupSvc) {
+    function ($scope, dao, ZipCodeLookupSvc ) {
       $scope.productGroups = [];
       $scope.selectedGroup = {};
       $scope.products = [];
@@ -60,7 +60,9 @@ var myAppModule = angular.module('myApp', ['ngMap', 'cb.x2js'])
 
       }
 
-      $scope.setProductGroup = function (group_name, group_id) {
+      $scope.setProductGroup = function (group_name, group_id, $event) {
+
+        var obj = $event.target;
 
         $scope.selectedGroup = {id: group_id, name: group_name};
 
