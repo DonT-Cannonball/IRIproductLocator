@@ -9,13 +9,139 @@ body {
 .tile-header-bg {
     width: 313px;
     height: 71px;
-    background: url(http://farmlandfoods.dev/sites/all/themes/farmlandfoods/images/tile-header-blue.jpg) no-repeat;
+    background: url('http://fl-dev-web.farmlandfood.com/sites/all/themes/farmlandfoods/images/tile-header-blue.jpg') no-repeat;
     color: #ffffff;
     padding: 8px 8px;
     font-size: 26px;
     line-height: 29px;
 }
 
+.search-bar, .header-bar-blue {
+    height: 46px;
+    background: url('http://fl-dev-web.farmlandfood.com/sites/all/themes/farmlandfoods/images/title-bar-blue-bg.jpg');
+    box-shadow:  0px 3px 13px 3px #999999; /*$tileShadow;*/
+}
+.dataLoading{
+    position: absolute;
+    right: 10000px;
+   // border: 5px solid red;
+}
+
+.dataLoaded{
+    position: relative;
+    right: auto;
+    //border: 5px solid green;
+}
+
+.no-data{
+    text-align: center;
+    position: absolute;
+    height: 100%;
+    font-size: 77px;
+    background-color: beige;
+    //width: 637px;
+    z-index: 1000;
+    font-size: 77px;
+
+}
+
+.centered {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-top: -50px;
+    margin-left: -100px;
+}
+
+.padding4 {
+    padding: 4px;
+}
+.padding10 {
+    padding: 10px;
+}
+.padding10 {
+    padding: 10px;
+}
+.paddingR15 {
+    padding-right: 15px !important;
+}
+.paddingR0 {
+    padding-right: 0px;
+}
+
+.margin15 {
+    padding: 10px;
+}
+.marginL0 {
+    margin-left: 0px;
+}
+
+.marginT10 {
+    margin-top: 10px;
+}
+
+.no-pad {
+    padding: 0;
+}
+
+.no-margin {
+    margin: 0;
+}
+
+.grid a{
+    display: inline-block;
+    border: 1px solid #454545;
+    box-shadow: 0px 3px 13px 3px #999999;
+}
+
+.news-filter-links,  .secondary .menu.nav.list-inline{
+    color: #fff;
+    font-family: "alternate-gothic-no-2-d", sans-serif;
+    font-size: 36px;
+    background-color: transparent;
+    text-transform: uppercase;
+    font-style: normal;
+}
+
+
+
+.animate-hide {
+    -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
+    -moz-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
+    -o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
+    transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
+    line-height:20px;
+    opacity:1;
+    padding:10px;
+    border:1px solid black;
+    background:white;
+    /*position: absolute;*/
+    left: 0;
+}
+
+.animate-hide.ng-hide {
+    left: -500%;
+    opacity:0;
+    padding:0 10px;
+}
+.container {
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+.container {
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+.no-right-pad {
+    padding-right: 0px;
+    margin-top: 10px;
+}
+
+.paddingL10 {
+    padding-left: 10px;
+}
 @media (max-width: 767px){
 
     body {
@@ -35,6 +161,16 @@ body {
     .closed-mobile{
         display: none;
     }
+
+    .tile-image {
+        max-width: 100%;
+    }
+    .tile-header-bg {
+        max-width: 100%;
+    }
+    .no-data {
+        width: 100%;
+    }
 }
 
 @media (min-width: 768px) {
@@ -50,6 +186,18 @@ body {
     .closed-mobile {
         display: block !important;
     }
+
+    .tile-image {
+        max-width: 238px;
+    }
+    .tile-header-bg {
+        max-width: 238px;
+    }
+
+    .no-data {
+        width: 360px;
+    }
+
 
 }
 
@@ -70,7 +218,10 @@ body {
     .closed-mobile{
         display: block !important;
     }
-}
+
+    .no-data {
+        width: 470px;
+    }
 
 
 @media (min-width: 1200px) {
@@ -92,6 +243,18 @@ body {
     .container {
         width: 970px;
     }
+
+    .tile-image {
+        max-width: 313px;
+    }
+    .tile-header-bg {
+        max-width: 313px;
+    }
+
+    .no-data {
+        width: 637px;
+    }
+
 }
 
 .state-indicator {

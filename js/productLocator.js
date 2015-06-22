@@ -12,7 +12,13 @@ var myAppModule = angular.module('myApp', ['ngMap', 'cb.x2js'])
       $scope.storeLocations = [];
       $scope.latlng = {};
       $scope.latlngJson = JSON.stringify($scope.latlng, null, 2);
+      $scope.positions = [{lat:37.7699298,lng:-122.4469157}];
       $scope.center =  "38.6527064, -90.3451408";
+      $scope.productSelected = false;
+      $scope.loadingData = true;
+      $scope.tileSelected = false;
+      $scope.noStoreData = true;
+      $scope.currentAddress = "";
 
       $scope.zoom = 8;
       $scope.control = {};
@@ -33,21 +39,24 @@ var myAppModule = angular.module('myApp', ['ngMap', 'cb.x2js'])
         $scope.message = err;
       });
 
+
       $scope.getLatFromZip = function(){
-      ZipCodeLookupSvc.lookupByZip($scope.zipCode).then(function (latlng) {
+      ZipCodeLookupSvc.lookupByZip($scope.zipCode).then(function (addressObj) {
 
         var latLngStr = "";
-        latLngStr += ""+latlng.lat +","+latlng.lng
+        latLngStr += ""+addressObj.latlng.lat +","+addressObj.latlng.lng
         $scope.center =latLngStr;
+        $scope.currentAddress = addressObj.address;
 
         $scope.latlng = {
-          latitude: latlng.lat,
-          longitude: latlng.lng
+          latitude: addressObj.latlng.lat,
+          longitude: addressObj.latlng.lng
         };
 
+        $scope.center = $scope.latlng.latitude +","+  $scope.latlng.longitude;
         $scope.latlngJson = JSON.stringify($scope.latlng, null, 2);
 
-        console.log(JSON.stringify($scope.latlng, null, 2));
+        //console.log(JSON.stringify($scope.latlng, null, 2));
       }, function (err) {
         $scope.message = err;
       });
@@ -58,15 +67,19 @@ var myAppModule = angular.module('myApp', ['ngMap', 'cb.x2js'])
 
         $scope.productGroups = data.groups.group;
 
+        //$scope.loadingData = false
+
       }
 
       $scope.setProductGroup = function (group_name, group_id, $event) {
 
         var obj = $event.target;
-
+        $scope.tileSelected = true;
         $scope.selectedGroup = {id: group_id, name: group_name};
 
+        $scope.positions = [];
         dao.getProductsForGroup(setProductList, $scope.selectedGroup.id)
+        //$scope.loadingData = false;
 
       }
 
@@ -78,6 +91,9 @@ var myAppModule = angular.module('myApp', ['ngMap', 'cb.x2js'])
         } else {
           $scope.products.push(data.products.product);
         }
+
+        $scope.productSelected = true;
+        $scope.loadingData = false;
         console.log(JSON.stringify($scope.products, null, 2));
 
       }
@@ -87,6 +103,7 @@ var myAppModule = angular.module('myApp', ['ngMap', 'cb.x2js'])
 
         $scope.selectedProduct = {id: product_id, name: product_name};
 
+        //$scope.loadingData = true;
         dao.getProductsByStores(setStoresList, $scope.selectedProduct.id, $scope.zipCode)
 
       }
@@ -94,7 +111,7 @@ var myAppModule = angular.module('myApp', ['ngMap', 'cb.x2js'])
 
       function setStoresList(data) {
 
-        console.log("is stores list an array or no? : " + window._.isArray(data.RESULTS.STORES.STORE));
+        //console.log("is stores list an array or no? : " + window._.isArray(data.RESULTS.STORES.STORE));
 
         $scope.storeLocations = [];
         if (_.isArray(data.RESULTS.STORES.STORE)) {
@@ -102,8 +119,13 @@ var myAppModule = angular.module('myApp', ['ngMap', 'cb.x2js'])
         } else {
           $scope.storeLocations.push(data.RESULTS.STORES.STORE);
         }
-        console.log(JSON.stringify($scope.storeLocations, null, 2));
+        //console.log(JSON.stringify($scope.storeLocations, null, 2));
+        console.log("no stores? : " + $scope.storeLocations.length)
+        console.log("store array value : " + $scope.storeLocations[0])
 
+        $scope.noStoreData = ($scope.storeLocations[0] === undefined);
+
+        //$scope.loadingData = false;
       }
 
       $scope.getLocation = function () {
@@ -130,6 +152,13 @@ var myAppModule = angular.module('myApp', ['ngMap', 'cb.x2js'])
         }
 
         getLocation()
+      }
+
+      $scope.backToProductGroups = function(){
+
+        $scope.tileSelected = false;
+        $scope.productSelected = false;
+        $scope.loadingData = true;
       }
 
       $scope.getLocation();
@@ -293,14 +322,15 @@ myAppModule.factory('ZipCodeLookupSvc', [
 
         $http.get(url).success(function (response) {
           //hacky
-          var latlng;
+          var latlng, address, addressObj ={};
 
           angular.forEach(response.results, function (result) {
             if (result.types[0] === 'postal_code') {
-              latlng = result.geometry.location;
+              addressObj.latlng = result.geometry.location;
             }
+            addressObj.address = result.formatted_address;
           });
-          deferred.resolve(latlng);
+          deferred.resolve(addressObj);
         }).error(deferred.reject);
 
         return deferred.promise;

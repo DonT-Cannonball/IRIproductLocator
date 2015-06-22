@@ -43,71 +43,85 @@
     <!--</div>-->
     <!--<div class="panel-body panel-body-sm" >-->
     <div ng-app="myApp" ng-controller="MapsController">
-        <div class="controls-panel">
-            <div ng-show="zipCode">
-                <p>Browser golocation: {{ zipCode }}</p>
-            </div>
-            <div ng-show="latlngJson">
-                <p>user input golocation: {{ latlngJson }}</p>
-            </div>
-            <input id="zipcode-input" class="zip-code" type="text" ng-model="zipCode"/>
-            <button class="btn btn-default" ng-click="getLatFromZip()"> set zip code</button>
-            <div ng-hide="zipCode">
-                <p>{{ message }}</p>
-            </div>
-            <div id="location"></div>
-            <div>
-                <div class="row tiles">
-                    <div class="col-sm-4 no-right-pad grid" ng-click="setProductGroup(group.group_name, group.group_id, this)" ng-repeat="group in productGroups track by group.group_id">
-                        <a href="#list">
-                            <img class="img-responsive tile-image" src="http://farmlandfoods.dev/sites/default/files/styles/thumbnail/public/bacon-club.jpg" alt="" title="">
+        <div class="row">
+               <div class="col-sm-12">
+                    <div class="header-bar-blue padding10 margin15">
+                        <div class="col-sm-12 no-pad no-margin">
 
-                            <div class="tile-header-bg tile-header-blue"> {{group.group_name}}</div>
-                        </a>
+                            <div class="pull-left">{{currentAddress}}</div>
+                            <div class="pull-right">
 
-                        <!--<button class="btn btn-xs btn-default">-->
-                        <!--{{group.group_name}}-->
-                        <!--</button>-->
+                            <input id="zipcode-input" class="zip-code" type="text" ng-model="zipCode"/>
+                            <button class="btn btn-default" ng-click="getLatFromZip()"> set zip code</button>
+                            </div>
+                        </div>
                     </div>
+
+
+                <div ng-hide="zipCode">
+                    <!--<p>{{ message }}</p>-->
                 </div>
-                <a name="list"/>
+                <div id="location" ng-hide="true"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="header-bar-blue padding10 margin15">
+                    <div class="col-sm-12 no-pad no-margin">
 
-                <div class="row">
-                    <div class="col-sm-12">
-
-
-                        <ul class="list-group list-inline">
-
-                            <li class="list-group-item" ng-click="setSelectedProduct(product.upc_name, product.upc_code)" ng-repeat="product in products">
-                                {{product.upc_name}}
-                            </li>
-                        </ul>
+                        <div class="selected-item">{{selectedGroup.name}} <span class="pull-right" ng-click="backToProductGroups()"><span class="glyphicon glyphicon-arrow-left"></span> Products Groups</span></div>
                     </div>
                 </div>
             </div>
-            <!--<div  ng-click="setSelectedProduct(product.upc_name, product.upc_code)" ng-repeat="product in products">-->
-            <!--<button class="btn btn-xs btn-default">-->
-            <!--{{product.upc_name}}-->
-            <!--</button>-->
-            <!--</div>-->
-            <div class="zip">
-                <input ng-model="zipcode" id="zipcode"/>
+        </div>
+        <div class="row tiles marginL0" ng-hide="tileSelected">
+            <div class="col-sm-4 grid no-pad marginT10" ng-click="setProductGroup(group.group_name, group.group_id, this)" ng-repeat="group in productGroups track by group.group_id">
+                <a href="#list">
+                    <img class="img-responsive tile-image" src="http://fl-dev-web.farmlandfood.com/sites/default/files/styles/thumbnail/public/bacon-club.jpg" alt="" title="">
+
+                    <div class="tile-header-bg tile-header-blue"> {{group.group_name}}</div>
+                </a>
+
+                <!--<button class="btn btn-xs btn-default">-->
+                <!--{{group.group_name}}-->
+                <!--</button>-->
             </div>
-            {{greeting}}
+            <div class="clear-fix"></div>
         </div>
 
-        <div class="selected-item">{{selectedGroup.name}}</div>
-        <map center="{{center}}" zoom="10" style="height: 600px;">
-            <info-window position="{{center}}" visible="true">
-                <span>Loation found using Geolocation</span>
-            </info-window>
+        <div class="row">
+            <div class="col-lg-4 col-sm-6" style="padding-right: 1px;">
+                <div class="{{loadingData == true ? 'dataLoading' : 'dataLoaded'}}">
 
-            <marker ng-repeat="store in storeLocations" position="{{[store.LATITUDE.__cdata, store.LONGITUDE.__cdata]}}" title="Hello World!"></marker>
+                    <a name="list"></a>
+                    <ul class="list-group no-pad no-margin">
+                        <li class="list-group-item padding4 " ng-click="setSelectedProduct(product.upc_name, product.upc_code)" ng-repeat="product in products">
+                            {{product.upc_name}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-6" style="">
+                <div style="position: absolute; height: 100%; width: 100%">
 
-        </map>
+                <div class="no-data" ng-show="noStoreData" style="">no data found</div>
+                </div>
+
+
+                <div class="{{loadingData == true ? 'dataLoading' : 'dataLoaded'}}">
+                    <map center="{{center}}" zoom="10" style="height: 600px; width: auto;">
+                        <!--<info-window position="{{center}}" visible="true">-->
+                        <!--<span>Loation found using Geolocation</span>-->
+                        <!--</info-window>-->
+                        <marker position="{{center}}" icon="{path:'BACKWARD_CLOSED_ARROW', scale: 5}" dragglele="false"></marker>
+
+                        <marker ng-repeat="store in storeLocations" icon="{path:'CIRCLE', scale: 5}" position="{{[store.LATITUDE.__cdata, store.LONGITUDE.__cdata]}}" title=""></marker>
+                    </map>
+                </div>
+            </div>
+        </div>
+        <!--<div class="loader-img centered" ng-show="loadingData" ><img src="images/ajax-loader2.gif" alt="" height="120" width="120"/></div>-->
     </div>
-    <!--</div>-->
-    <!--</div>-->
 </div>
 
 
@@ -128,14 +142,7 @@
 <script src="https://rawgit.com/allenhwkim/angularjs-google-maps/master/build/scripts/ng-map.js"></script>
 <script src="bower_components/angular-x2js/src/x2js.js"></script>
 <script src="bower_components/x2js/xml2json.js"></script>
-<!--<script src="script.js"></script>-->
 <script src="js/productLocator.js"></script>
-<!--<script src="js/ProductLocatorDAO.js"></script>-->
-
-<!--<script src="js/mapController.js"></script>-->
-
-<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-<!--<script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>-->
 <script>
 
 
